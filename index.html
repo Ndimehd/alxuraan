@@ -256,7 +256,7 @@ canvas#tikCanvas{border-radius:12px;max-width:100%;display:block;box-shadow:0 8p
       <button class="nav-tab active" id="tab-quran" onclick="showTab('quran')">📖 Coran</button>
       <button class="nav-tab" id="tab-faratas" onclick="showTab('faratas')">🕌 Faratas</button>
       <button class="nav-tab" id="tab-quiz" onclick="showTab('quiz')">🎯 Quiz</button>
-      <button class="nav-tab" id="tab-tiktok" onclick="showTab('tiktok')">🎨 TikTok</button>
+      
     </nav>
     <main class="main" id="tabQuran">
       <div class="welcome">
@@ -268,7 +268,7 @@ canvas#tikCanvas{border-radius:12px;max-width:100%;display:block;box-shadow:0 8p
     </main>
     <main class="main" id="tabFaratas" style="display:none"><div id="faratasInner"></div></main>
     <main class="main" id="tabQuiz" style="display:none"><div class="quiz-container" id="quizInner"></div></main>
-    <main class="main" id="tabTiktok" style="display:none"><div class="tiktok-gen" id="tiktokInner"></div></main>
+    
   </div>
 </div>
 <div class="bot">
@@ -347,14 +347,13 @@ function toggleSidebar(){document.getElementById('sidebar').classList.toggle('op
 let currentTab='quran';
 function showTab(tab){
   currentTab=tab;
-  ['quran','faratas','quiz','tiktok'].forEach(t=>{
+  ['quran','faratas','quiz'].forEach(t=>{
     document.getElementById('tab-'+t).classList.toggle('active',t===tab);
-    const id={quran:'tabQuran',faratas:'tabFaratas',quiz:'tabQuiz',tiktok:'tabTiktok'}[t];
+    const id={quran:'tabQuran',faratas:'tabFaratas',quiz:'tabQuiz'}[t];
     document.getElementById(id).style.display=(t===tab)?'block':'none';
   });
   if(tab==='faratas')renderFaratas();
   if(tab==='quiz')initQuiz();
-  if(tab==='tiktok')renderTikTok();
 }
 
 // LOAD SURAH
@@ -498,7 +497,7 @@ function goSearch(s,v){closeSearch();if(curSurah===s){setTimeout(()=>{const el=d
 function renderFaratas(){
   const el=document.getElementById('faratasInner');
   if(!el)return;
-  let html='<div style="margin-bottom:18px;padding:14px;background:rgba(201,168,76,.06);border:1px solid var(--gold-dim);border-radius:10px"><div style="font-size:12px;color:var(--gold);font-family:monospace;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px">Sources</div><div style="font-size:12px;color:var(--text-muted)">Kham Say Farata · Xam-Xam mou fikhe — Dahira Touba Nantes</div></div>';
+  let html='<div style="margin-bottom:18px;padding:14px;background:rgba(201,168,76,.06);border:1px solid var(--gold-dim);border-radius:10px"><div style="font-size:12px;color:var(--gold);font-family:monospace;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px">Sources</div><div style="font-size:12px;color:var(--text-muted)">Kham Say Farata</div></div>';
   for(const[key,sec]of Object.entries(FARATAS)){
     const hasObj=sec.faratayi&&typeof sec.faratayi[0]==='object';
     const fList=sec.faratayi.map((f,i)=>{
@@ -553,57 +552,76 @@ function answerQuiz(idx){if(quizState.answered)return;quizState.answered=true;co
 function nextQ(){quizState.q++;quizState.answered=false;renderQuizQ();}
 function renderQuizResult(){const el=document.getElementById('quizInner');const{score,questions}=quizState;const pct=Math.round((score/questions.length)*100);const msg=pct===100?'Parfait ! Maashaa Allah 🌟':pct>=70?'Très bien ! Continue ainsi 💪':pct>=50?'Bien ! Encore un effort 📖':'Continue dabord 🤲';const emoji=pct===100?'🏆':pct>=70?'⭐':pct>=50?'📖':'🤲';el.innerHTML='<div class="quiz-result"><div class="quiz-result-emoji">'+emoji+'</div><div class="quiz-result-score">'+score+'/'+questions.length+'</div><div class="quiz-result-msg">'+msg+'</div><div style="font-family:monospace;font-size:12px;color:var(--text-muted);margin-bottom:20px">'+pct+'% bonnes réponses</div><button class="quiz-restart" onclick="initQuiz()">🔄 Recommencer</button></div>';}
 
-// TIKTOK
-let tikS=1,tikV=1;
+// COMMUNAUTÉ
 function renderTikTok(){
-  const el=document.getElementById('tiktokInner');if(!el)return;
-  const surahOpts=SURAH_LIST.map(s=>'<option value="'+s.num+'">'+s.num+'. '+s.arabic+' — '+s.wolof+'</option>').join('');
-  el.innerHTML='<div style="margin-bottom:20px"><div style="font-family:monospace;font-size:11px;color:var(--gold);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">🎨 Générateur de visuels Coran</div><div style="font-size:13px;color:var(--text-muted);margin-bottom:20px">Crée des images 540×540 à partager sur TikTok, Instagram et WhatsApp.</div></div>'
-    +'<div class="tg-controls">'
-    +'<label class="tg-label">Sourate</label><select class="tg-select" id="tikSurah" onchange="updateTikV()">'+surahOpts+'</select>'
-    +'<div class="tg-row"><div><label class="tg-label">Verset</label><select class="tg-sel-sm" id="tikVerse"></select></div>'
-    +'<div><label class="tg-label">Style</label><select class="tg-sel-sm" id="tikStyle"><option value="dark">🌙 Sombre doré</option><option value="green">🌿 Vert islamique</option><option value="blue">💙 Bleu nuit</option><option value="light">☀️ Clair</option></select></div></div>'
-    +'<label class="tg-label" style="margin-top:14px">Langues</label>'
-    +'<div class="tg-row" style="margin-bottom:14px"><select class="tg-sel-sm" id="tikLang"><option value="all">Arabe + Français + Wolof</option><option value="ar_wo">Arabe + Wolof</option><option value="ar_fr">Arabe + Français</option><option value="wo">Wolof seulement</option></select></div>'
-    +'<button class="tg-gen-btn" onclick="generateTik()">✨ Générer le visuel</button></div>'
-    +'<div class="tg-preview" id="tikPrev" style="display:none"><div class="tg-canvas-wrap"><canvas id="tikCanvas" width="540" height="540"></canvas></div><div class="tg-actions"><button class="tg-dl-btn" onclick="dlTik()">⬇️ Télécharger</button><button class="tg-copy-btn" onclick="waTik()">📲 WhatsApp</button></div></div>';
-  updateTikV();
+  const el=document.getElementById('tiktokInner');
+  if(!el)return;
+  el.innerHTML='<div style="max-width:600px;margin:0 auto">'
+
+    // Hero
+    +'<div style="text-align:center;padding:32px 20px 24px;background:var(--surface);border:1px solid var(--border);border-radius:16px;margin-bottom:20px;position:relative;overflow:hidden">'
+    +'<div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)"></div>'
+    +'<div style="font-size:48px;margin-bottom:12px">🕌</div>'
+    +'<h2 style="font-family:serif;font-size:28px;color:var(--gold-light);margin-bottom:8px">Alxuraan</h2>'
+    +'<p style="font-size:14px;color:var(--text-muted);line-height:1.6;max-width:400px;margin:0 auto">Le Saint Coran en wolof, francais et arabe - un projet pour la communaute senegalaise.</p>'
+    +'</div>'
+
+    // TikTok
+    +'<div style="background:linear-gradient(135deg,#010101,#1a1a2e);border:1px solid #333;border-radius:14px;padding:24px;margin-bottom:16px;display:flex;align-items:center;gap:16px;cursor:pointer" onclick="window.open(this.dataset.url,\'_blank\')" data-url="https://www.tiktok.com/@digitalsafesn">'
+    +'<div style="width:56px;height:56px;background:#ff0050;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0">🎵</div>'
+    +'<div style="flex:1">'
+    +'<div style="font-family:monospace;font-size:13px;font-weight:700;color:#fff;margin-bottom:4px">@DigitalSafeSN</div>'
+    +'<div style="font-size:12px;color:#aaa;margin-bottom:10px">Contenu islamique en wolof · Cybersécurité · Sénégal</div>'
+    +'<div style="display:inline-block;background:#ff0050;color:#fff;padding:6px 14px;border-radius:20px;font-size:11px;font-family:monospace;font-weight:700">Suivre sur TikTok →</div>'
+    +'</div></div>'
+
+    // Soutenir
+    +'<div style="background:rgba(201,168,76,.06);border:1px solid var(--gold-dim);border-radius:14px;padding:24px;margin-bottom:16px">'
+    +'<div style="font-family:monospace;font-size:11px;color:var(--gold);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px">Soutenir le projet</div>'
+    +'<p style="font-size:13px;color:var(--text-muted);line-height:1.6;margin-bottom:16px">Alxuraan est 100% gratuit. Soutenez-nous pour continuer a l-ameliorer.</p>'
+    +'<div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px;display:flex;align-items:center;gap:12px;margin-bottom:10px">'
+    +'<span style="font-size:20px">📱</span>'
+    +'<div><div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px">Wave / Orange Money</div>'
+    +'<div style="font-size:13px;color:var(--gold);font-family:monospace">+221 77 XXX XX XX</div></div></div>'
+    +'<div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px;font-size:12px;color:var(--text-muted)">Partagez l-app autour de vous - c-est deja un grand soutien !</div>'
+    +'</div>'
+
+    // Partager
+    +'<div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:16px">'
+    +'<div style="font-family:monospace;font-size:11px;color:var(--gold);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px">Partager Alxuraan</div>'
+    +'<div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-family:monospace;font-size:12px;color:var(--gold);margin-bottom:12px;word-break:break-all">https://ndimehd.github.io/alxuraan</div>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap">'
+    +'<button onclick="shareApp(\'wa\')" style="flex:1;padding:10px;background:#25D366;border:none;border-radius:8px;color:#fff;font-family:monospace;font-size:12px;font-weight:700;cursor:pointer;min-width:120px">WhatsApp</button>'
+    +'<button onclick="shareApp(\'copy\')" style="flex:1;padding:10px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:monospace;font-size:12px;cursor:pointer;min-width:120px">Copier le lien</button>'
+    +'</div></div>'
+
+    // A propos
+    +'<div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px">'
+    +'<div style="font-family:monospace;font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px">A propos</div>'
+    +'<div style="font-size:13px;color:var(--text-muted);line-height:1.8">'
+    +'<div style="margin-bottom:6px">📖 <strong style="color:var(--text)">6236 versets</strong> en arabe, français et wolof</div>'
+    +'<div style="margin-bottom:6px">🎵 <strong style="color:var(--text)">4 récitateurs</strong> de renom</div>'
+    +'<div style="margin-bottom:6px">🕌 <strong style="color:var(--text)">Faratas</strong> — Source: Kham Say Farata</div>'
+    +'<div style="margin-bottom:6px">🎯 <strong style="color:var(--text)">Quiz</strong> — Source: Xam-Xam mou fikhe</div>'
+    +'<div style="margin-bottom:12px">🌍 <strong style="color:var(--text)">100% gratuit</strong> — aucune publicité</div>'
+    +'<div style="padding-top:12px;border-top:1px solid var(--border);font-size:11px;color:var(--text-dim);text-align:center">Developpe avec pour la communaute senegalaise<br>Version 1.0 · 2025</div>'
+    +'</div></div>'
+    +'</div>';
 }
-function updateTikV(){const sNum=parseInt(document.getElementById('tikSurah').value);const s=SURAH_LIST.find(x=>x.num===sNum);const sel=document.getElementById('tikVerse');if(!sel||!s)return;sel.innerHTML=Array.from({length:s.verses},(_,i)=>'<option value="'+(i+1)+'">Verset '+(i+1)+'</option>').join('');}
-function wrapTxt(ctx,text,x,y,mw,lh){const words=text.split(' ');let line='',lines=[];for(const w of words){const t=line?line+' '+w:w;if(ctx.measureText(t).width>mw&&line){lines.push(line);line=w;}else line=t;}lines.push(line);lines.forEach((l,i)=>ctx.fillText(l,x,y+i*lh));return lines.length*lh;}
-async function generateTik(){
-  const sNum=parseInt(document.getElementById('tikSurah').value);
-  const vNum=parseInt(document.getElementById('tikVerse').value);
-  const style=document.getElementById('tikStyle').value;
-  const lang=document.getElementById('tikLang').value;
-  const surah=SURAH_LIST.find(s=>s.num===sNum);
-  const wolof=WOLOF_DATA[String(sNum)]?.verses?.[String(vNum)]||'';
-  let arText='',frText='';
-  try{const r=await fetch('https://api.alquran.cloud/v1/ayah/'+sNum+':'+vNum+'/quran-uthmani');const d=await r.json();if(d.data)arText=d.data.text;}catch(e){}
-  try{const r2=await fetch('https://api.alquran.cloud/v1/ayah/'+sNum+':'+vNum+'/fr.hamidullah');const d2=await r2.json();if(d2.data)frText=d2.data.text;}catch(e){}
-  showToast('🎨 Génération...');
-  const canvas=document.getElementById('tikCanvas');const ctx=canvas.getContext('2d');const W=540,H=540;
-  const styles={dark:{bg1:'#0f1117',bg2:'#1e2435',gold:'#c9a84c',text:'#e8e4d9',sub:'#8a8070'},green:{bg1:'#0d1f0d',bg2:'#1a3a1a',gold:'#7ec87e',text:'#e8f5e8',sub:'#6a9a6a'},blue:{bg1:'#080f1f',bg2:'#0d1a35',gold:'#7ab3e8',text:'#ddeeff',sub:'#4a7aaa'},light:{bg1:'#f5f0e8',bg2:'#ede5d0',gold:'#8a6820',text:'#1a1610',sub:'#5a5040'}};
-  const sc=styles[style]||styles.dark;
-  const grad=ctx.createLinearGradient(0,0,W,H);grad.addColorStop(0,sc.bg1);grad.addColorStop(1,sc.bg2);ctx.fillStyle=grad;ctx.fillRect(0,0,W,H);
-  const tg=ctx.createLinearGradient(0,0,W,0);tg.addColorStop(0,'transparent');tg.addColorStop(.5,sc.gold);tg.addColorStop(1,'transparent');ctx.fillStyle=tg;ctx.fillRect(0,0,W,3);ctx.fillRect(0,H-3,W,3);
-  ctx.strokeStyle=sc.gold+'40';ctx.lineWidth=1;const cs=28;[[20,20],[W-20,20],[20,H-20],[W-20,H-20]].forEach(([cx,cy])=>{ctx.beginPath();ctx.moveTo(cx-cs,cy);ctx.lineTo(cx,cy);ctx.lineTo(cx,cy+(cy<H/2?cs:-cs));ctx.stroke();});
-  ctx.font='bold 12px monospace';ctx.fillStyle=sc.gold+'80';ctx.textAlign='center';ctx.fillText('ALXURAAN · القرآن بالولوف',W/2,H-20);
-  ctx.font='11px monospace';ctx.fillStyle=sc.gold;ctx.fillText(surah.arabic+' · '+sNum+':'+vNum+' · '+surah.french,W/2,34);
-  let y=58;
-  if((lang==='all'||lang==='ar_wo'||lang==='ar_fr')&&arText){ctx.font='26px serif';ctx.fillStyle=sc.text;ctx.textAlign='center';ctx.direction='rtl';const h=wrapTxt(ctx,arText,W/2,y,W-60,42);y+=h+16;ctx.direction='ltr';ctx.strokeStyle=sc.gold+'40';ctx.beginPath();ctx.moveTo(80,y);ctx.lineTo(W-80,y);ctx.stroke();y+=14;}
-  if((lang==='all'||lang==='ar_fr')&&frText){ctx.font='italic 13px serif';ctx.fillStyle=style==='dark'?'#7ab3e8':style==='green'?'#a0d0a0':'#6090c0';ctx.textAlign='center';const h=wrapTxt(ctx,frText,W/2,y,W-70,21);y+=h+12;}
-  if((lang==='all'||lang==='ar_wo'||lang==='wo')&&wolof){ctx.font='italic 14px serif';ctx.fillStyle=sc.gold;ctx.textAlign='center';wrapTxt(ctx,wolof,W/2,y,W-70,22);}
-  document.getElementById('tikPrev').style.display='block';showToast('✅ Visuel prêt !');
+
+function shareApp(type){
+  const url='https://ndimehd.github.io/alxuraan';
+  const text='Alxuraan — Le Saint Coran en wolof, français et arabe\nAudio · Faratas · Quiz\n\n'+url;
+  if(type==='wa'){window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank');}
+  else{navigator.clipboard.writeText(url).then(()=>showToast('Lien copié !')).catch(()=>showToast('Erreur copie'));}
 }
-function dlTik(){const canvas=document.getElementById('tikCanvas');const sNum=document.getElementById('tikSurah')?.value||'1';const vNum=document.getElementById('tikVerse')?.value||'1';const a=document.createElement('a');a.download='alxuraan-'+sNum+'-'+vNum+'.png';a.href=canvas.toDataURL('image/png');a.click();showToast('✅ Téléchargé !');}
-function waTik(){const sNum=parseInt(document.getElementById('tikSurah')?.value||1);const vNum=parseInt(document.getElementById('tikVerse')?.value||1);const surah=SURAH_LIST.find(s=>s.num===sNum);const wo=WOLOF_DATA[String(sNum)]?.verses?.[String(vNum)]||'';const text='📖 '+surah?.arabic+' — '+sNum+':'+vNum+'\n\n🟡 '+wo+'\n\n— Alxuraan · القرآن بالولوف';window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank');}
 
 // INIT
 initTheme();
 buildQuick();
 renderList(SURAH_LIST);
 if(!restorePos())loadSurah(1);
+
 </script>
 </body>
 </html>
