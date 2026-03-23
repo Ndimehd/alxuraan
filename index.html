@@ -223,6 +223,40 @@ canvas#tikCanvas{border-radius:12px;max-width:100%;display:block;box-shadow:0 8p
 .toast{position:fixed;bottom:64px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:9px 18px;border-radius:24px;font-size:12px;font-family:'Space Mono',monospace;opacity:0;transition:all .3s ease;pointer-events:none;white-space:nowrap;z-index:500}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 @media(max-width:768px){.menu-btn{display:flex;align-items:center}.sidebar{position:fixed;left:-280px;top:60px;height:calc(100vh - 60px - 56px);z-index:90;transition:left .3s ease}.sidebar.open{left:0}.main{padding:16px 14px 80px}.reciter-sel{display:none}.sh{padding:18px}.sh-ar{font-size:30px}.v-ar{font-size:20px}.bot-info,.bot-sep{display:none}}
+
+  /* PRAYER TIMES */
+  .prayer-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:16px}
+  .prayer-location{display:flex;align-items:center;gap:10px;padding:14px;background:rgba(201,168,76,.06);border:1px solid var(--gold-dim);border-radius:10px;margin-bottom:16px;cursor:pointer;transition:var(--tr)}
+  .prayer-location:hover{background:rgba(201,168,76,.12)}
+  .prayer-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border)}
+  .prayer-row:last-child{border-bottom:none}
+  .prayer-row.next{background:rgba(201,168,76,.06);margin:0 -20px;padding:12px 20px;border-radius:8px}
+  .prayer-name{font-family:'Space Mono',monospace;font-size:13px;color:var(--text)}
+  .prayer-name-wo{font-size:11px;color:var(--text-muted);font-style:italic}
+  .prayer-time{font-family:'Space Mono',monospace;font-size:16px;color:var(--gold);font-weight:700}
+  .prayer-row.next .prayer-time{color:var(--gold-light)}
+  .next-badge{font-size:10px;background:var(--gold);color:var(--bg);padding:2px 7px;border-radius:10px;font-family:'Space Mono',monospace;font-weight:700}
+  .prayer-date{font-family:'Space Mono',monospace;font-size:11px;color:var(--text-muted);text-align:center;margin-bottom:16px}
+
+  /* TASBIH */
+  .tasbih-wrap{max-width:400px;margin:0 auto;text-align:center;padding:20px 0}
+  .tasbih-dhikr-btns{display:flex;flex-direction:column;gap:8px;margin-bottom:24px}
+  .tasbih-dhikr-btn{padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text);cursor:pointer;font-family:'Lora',serif;font-size:14px;transition:var(--tr);text-align:left;display:flex;justify-content:space-between;align-items:center}
+  .tasbih-dhikr-btn:hover{border-color:var(--gold-dim);background:var(--surface2)}
+  .tasbih-dhikr-btn.active{border-color:var(--gold);background:rgba(201,168,76,.08)}
+  .tasbih-dhikr-ar{font-family:'Amiri',serif;font-size:18px;color:var(--gold-light);direction:rtl}
+  .tasbih-counter{font-family:'Space Mono',monospace;font-size:80px;font-weight:700;color:var(--gold);line-height:1;margin:20px 0;cursor:pointer;user-select:none;transition:transform .1s}
+  .tasbih-counter:active{transform:scale(.95)}
+  .tasbih-target{font-family:'Space Mono',monospace;font-size:13px;color:var(--text-muted);margin-bottom:8px}
+  .tasbih-progress-bar{height:6px;background:var(--border);border-radius:3px;margin-bottom:20px;overflow:hidden}
+  .tasbih-progress-fill{height:100%;background:var(--gold);border-radius:3px;transition:width .3s ease}
+  .tasbih-btn-row{display:flex;gap:10px;justify-content:center}
+  .tasbih-tap-btn{width:120px;height:120px;border-radius:50%;background:var(--gold);border:none;cursor:pointer;font-size:32px;display:flex;align-items:center;justify-content:center;transition:all .1s;box-shadow:0 4px 20px rgba(201,168,76,.3)}
+  .tasbih-tap-btn:active{transform:scale(.93);box-shadow:0 2px 10px rgba(201,168,76,.2)}
+  .tasbih-reset-btn{padding:10px 20px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text-muted);cursor:pointer;font-family:'Space Mono',monospace;font-size:12px;transition:var(--tr)}
+  .tasbih-reset-btn:hover{color:var(--text);border-color:var(--gold-dim)}
+  .tasbih-total{font-family:'Space Mono',monospace;font-size:11px;color:var(--text-dim);margin-top:16px}
+
 </style>
 </head>
 <body>
@@ -256,7 +290,8 @@ canvas#tikCanvas{border-radius:12px;max-width:100%;display:block;box-shadow:0 8p
       <button class="nav-tab active" id="tab-quran" onclick="showTab('quran')">📖 Coran</button>
       <button class="nav-tab" id="tab-faratas" onclick="showTab('faratas')">🕌 Faratas</button>
       <button class="nav-tab" id="tab-quiz" onclick="showTab('quiz')">🎯 Quiz</button>
-      
+      <button class="nav-tab" id="tab-prayer" onclick="showTab('prayer')">🕐 Prières</button>
+      <button class="nav-tab" id="tab-tasbih" onclick="showTab('tasbih')">📿 Tasbih</button>
     </nav>
     <main class="main" id="tabQuran">
       <div class="welcome">
@@ -268,6 +303,8 @@ canvas#tikCanvas{border-radius:12px;max-width:100%;display:block;box-shadow:0 8p
     </main>
     <main class="main" id="tabFaratas" style="display:none"><div id="faratasInner"></div></main>
     <main class="main" id="tabQuiz" style="display:none"><div class="quiz-container" id="quizInner"></div></main>
+    <main class="main" id="tabPrayer" style="display:none"><div id="prayerInner"></div></main>
+    <main class="main" id="tabTasbih" style="display:none"><div id="tasbihInner"></div></main>
     
   </div>
 </div>
@@ -347,13 +384,15 @@ function toggleSidebar(){document.getElementById('sidebar').classList.toggle('op
 let currentTab='quran';
 function showTab(tab){
   currentTab=tab;
-  ['quran','faratas','quiz'].forEach(t=>{
+  ['quran','faratas','quiz','prayer','tasbih'].forEach(t=>{
     document.getElementById('tab-'+t).classList.toggle('active',t===tab);
-    const id={quran:'tabQuran',faratas:'tabFaratas',quiz:'tabQuiz'}[t];
+    const id={quran:'tabQuran',faratas:'tabFaratas',quiz:'tabQuiz',prayer:'tabPrayer',tasbih:'tabTasbih'}[t];
     document.getElementById(id).style.display=(t===tab)?'block':'none';
   });
   if(tab==='faratas')renderFaratas();
   if(tab==='quiz')initQuiz();
+  if(tab==='prayer')initPrayer();
+  if(tab==='tasbih')initTasbih();
 }
 
 // LOAD SURAH
@@ -497,7 +536,7 @@ function goSearch(s,v){closeSearch();if(curSurah===s){setTimeout(()=>{const el=d
 function renderFaratas(){
   const el=document.getElementById('faratasInner');
   if(!el)return;
-  let html='<div style="margin-bottom:18px;padding:14px;background:rgba(201,168,76,.06);border:1px solid var(--gold-dim);border-radius:10px"><div style="font-size:12px;color:var(--gold);font-family:monospace;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px">Sources</div><div style="font-size:12px;color:var(--text-muted)">Kham Say Farata</div></div>';
+  let html='<div style="margin-bottom:18px;padding:14px;background:rgba(201,168,76,.06);border:1px solid var(--gold-dim);border-radius:10px"><div style="font-size:12px;color:var(--gold);font-family:monospace;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px">Sources</div><div style="font-size:12px;color:var(--text-muted)">Kham Say Farata · Xam-Xam mou fikhe — Dahira Touba Nantes</div></div>';
   for(const[key,sec]of Object.entries(FARATAS)){
     const hasObj=sec.faratayi&&typeof sec.faratayi[0]==='object';
     const fList=sec.faratayi.map((f,i)=>{
@@ -614,6 +653,231 @@ function shareApp(type){
   const text='Alxuraan — Le Saint Coran en wolof, français et arabe\nAudio · Faratas · Quiz\n\n'+url;
   if(type==='wa'){window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank');}
   else{navigator.clipboard.writeText(url).then(()=>showToast('Lien copié !')).catch(()=>showToast('Erreur copie'));}
+}
+
+
+// ===================== PRAYER TIMES =====================
+const PRAYER_NAMES = {
+  Fajr:   {fr:'Aube',       wo:'Fajar',   ar:'الفجر'},
+  Sunrise:{fr:'Lever',      wo:'Feebar',  ar:'الشروق'},
+  Dhuhr:  {fr:'Midi',       wo:'Subar',   ar:'الظهر'},
+  Asr:    {fr:'Après-midi', wo:'Takkusan',ar:'العصر'},
+  Maghrib:{fr:'Coucher',    wo:'Timis',   ar:'المغرب'},
+  Isha:   {fr:'Nuit',       wo:'Gëwël',   ar:'العشاء'}
+};
+
+let prayerData = null;
+let userCity = 'Dakar';
+let userLat = 14.6928, userLon = -17.4467;
+
+async function initPrayer() {
+  const el = document.getElementById('prayerInner');
+  if (!el) return;
+  el.innerHTML = '<div class="loading"><div class="spinner"></div>Chargement des horaires...</div>';
+  
+  // Try GPS first
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      pos => { userLat = pos.coords.latitude; userLon = pos.coords.longitude; fetchPrayers(); },
+      () => fetchPrayers() // fallback to Dakar
+    );
+  } else {
+    fetchPrayers();
+  }
+}
+
+async function fetchPrayers() {
+  const el = document.getElementById('prayerInner');
+  try {
+    const today = new Date();
+    const d = today.getDate(), m = today.getMonth()+1, y = today.getFullYear();
+    const url = `https://api.aladhan.com/v1/timings/${d}-${m}-${y}?latitude=${userLat}&longitude=${userLon}&method=4`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data.code === 200) {
+      prayerData = data.data;
+      renderPrayers(data.data);
+    } else {
+      el.innerHTML = '<div class="loading">Erreur de chargement. Verifie ta connexion.</div>';
+    }
+  } catch(e) {
+    el.innerHTML = '<div class="loading">Impossible de charger les horaires. Verifie ta connexion internet.</div>';
+  }
+}
+
+function renderPrayers(data) {
+  const el = document.getElementById('prayerInner');
+  if (!el) return;
+  
+  const timings = data.timings;
+  const date = data.date;
+  const now = new Date();
+  const nowMins = now.getHours()*60 + now.getMinutes();
+  
+  // Find next prayer
+  const prayers = ['Fajr','Sunrise','Dhuhr','Asr','Maghrib','Isha'];
+  let nextPrayer = null;
+  for (const p of prayers) {
+    const [h,m] = timings[p].split(':').map(Number);
+    if (h*60+m > nowMins) { nextPrayer = p; break; }
+  }
+  if (!nextPrayer) nextPrayer = 'Fajr'; // next day
+  
+  // Hijri date
+  const hijri = date.hijri;
+  const hijriStr = `${hijri.day} ${hijri.month.en} ${hijri.year}H`;
+  const gregorianStr = date.readable;
+  
+  const rows = prayers.map(p => {
+    const isNext = p === nextPrayer;
+    const names = PRAYER_NAMES[p] || {fr:p, wo:p, ar:p};
+    return `<div class="prayer-row ${isNext?'next':''}">
+      <div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="prayer-name">${names.ar} — ${names.fr}</div>
+          ${isNext ? '<span class="next-badge">Prochain</span>' : ''}
+        </div>
+        <div class="prayer-name-wo">${names.wo}</div>
+      </div>
+      <div class="prayer-time">${timings[p]}</div>
+    </div>`;
+  }).join('');
+
+  el.innerHTML = `
+    <div style="max-width:500px;margin:0 auto">
+      <div class="prayer-card">
+        <div class="prayer-date">${gregorianStr} · ${hijriStr}</div>
+        <div class="prayer-location" onclick="initPrayer()">
+          <span style="font-size:20px">📍</span>
+          <div>
+            <div style="font-size:13px;color:var(--text);font-weight:600">Position detectee</div>
+            <div style="font-size:11px;color:var(--text-muted);font-family:monospace">${userLat.toFixed(4)}, ${userLon.toFixed(4)} · Tap pour actualiser</div>
+          </div>
+        </div>
+        ${rows}
+      </div>
+      <div style="text-align:center;font-size:11px;color:var(--text-dim);font-family:monospace;padding:8px">
+        Methode: Muslim World League · Source: Aladhan API
+      </div>
+    </div>`;
+}
+
+// ===================== TASBIH =====================
+const DHIKR_LIST = [
+  {ar:'سُبْحَانَ اللَّهِ',       fr:'Subhanallah',    wo:'Yàlla sell na',          target:33},
+  {ar:'الْحَمْدُ لِلَّهِ',      fr:'Alhamdulillah',  wo:'Xeeti cant ñeel na Yàlla', target:33},
+  {ar:'اللَّهُ أَكْبَرُ',       fr:'Allahu Akbar',   wo:'Yàlla moo gën a mag',     target:34},
+  {ar:'لَا إِلَهَ إِلَّا اللَّهُ', fr:'La ilaha illallah', wo:'Amul yàlla bu bees Yàlla', target:100},
+  {ar:'أَسْتَغْفِرُ اللَّهَ',    fr:'Astaghfirullah', wo:'Yàlla ndox jënd ma ko',  target:100},
+];
+
+let tasbihCount = 0;
+let tasbihDhikr = 0;
+let tasbihTotal = 0;
+
+function initTasbih() {
+  const el = document.getElementById('tasbihInner');
+  if (!el) return;
+  
+  // Restore saved state
+  try {
+    const saved = JSON.parse(localStorage.getItem('alx_tasbih') || '{}');
+    tasbihCount = saved.count || 0;
+    tasbihDhikr = saved.dhikr || 0;
+    tasbihTotal = saved.total || 0;
+  } catch(e) {}
+  
+  renderTasbih();
+}
+
+function renderTasbih() {
+  const el = document.getElementById('tasbihInner');
+  if (!el) return;
+  const d = DHIKR_LIST[tasbihDhikr];
+  const pct = Math.min((tasbihCount / d.target) * 100, 100);
+  
+  const dhikrBtns = DHIKR_LIST.map((dk, i) => `
+    <button class="tasbih-dhikr-btn ${i===tasbihDhikr?'active':''}" onclick="selectDhikr(${i})">
+      <div>
+        <div style="font-size:13px;color:var(--text);margin-bottom:2px">${dk.fr}</div>
+        <div style="font-size:11px;color:var(--text-muted)">${dk.wo}</div>
+      </div>
+      <div class="tasbih-dhikr-ar">${dk.ar}</div>
+    </button>`).join('');
+
+  el.innerHTML = `
+    <div class="tasbih-wrap">
+      <div style="font-family:'Amiri',serif;font-size:32px;color:var(--gold-light);direction:rtl;margin-bottom:8px;line-height:1.5">${d.ar}</div>
+      <div style="font-size:16px;color:var(--text);margin-bottom:4px;font-weight:600">${d.fr}</div>
+      <div style="font-size:13px;color:var(--amber);font-style:italic;margin-bottom:24px">${d.wo}</div>
+      
+      <div class="tasbih-counter" id="tasbihCount" onclick="tapTasbih()">${tasbihCount}</div>
+      <div class="tasbih-target">/ ${d.target}</div>
+      <div class="tasbih-progress-bar">
+        <div class="tasbih-progress-fill" style="width:${pct}%"></div>
+      </div>
+      
+      <div class="tasbih-btn-row" style="margin-bottom:20px">
+        <button class="tasbih-tap-btn" onclick="tapTasbih()">📿</button>
+      </div>
+      <div class="tasbih-btn-row">
+        <button class="tasbih-reset-btn" onclick="resetTasbih()">Remettre a zero</button>
+      </div>
+      <div class="tasbih-total">Total session: ${tasbihTotal} dhikr</div>
+      
+      <div style="margin-top:28px;text-align:left">
+        <div style="font-family:monospace;font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">Choisir un dhikr</div>
+        <div class="tasbih-dhikr-btns">${dhikrBtns}</div>
+      </div>
+    </div>`;
+}
+
+function tapTasbih() {
+  const d = DHIKR_LIST[tasbihDhikr];
+  tasbihCount++;
+  tasbihTotal++;
+  
+  if (tasbihCount >= d.target) {
+    showToast('Maashaa Allah ! ' + d.target + 'x ' + d.fr + ' ✅');
+    tasbihCount = 0;
+  }
+  
+  // Update counter display
+  const el = document.getElementById('tasbihCount');
+  if (el) {
+    el.textContent = tasbihCount;
+    el.style.transform = 'scale(1.15)';
+    setTimeout(() => { if(el) el.style.transform = 'scale(1)'; }, 100);
+  }
+  
+  // Update progress
+  const pct = Math.min((tasbihCount / d.target) * 100, 100);
+  const fill = document.querySelector('.tasbih-progress-fill');
+  if (fill) fill.style.width = pct + '%';
+  
+  // Update total
+  const tot = document.querySelector('.tasbih-total');
+  if (tot) tot.textContent = 'Total session: ' + tasbihTotal + ' dhikr';
+  
+  // Vibrate on mobile
+  if (navigator.vibrate) navigator.vibrate(30);
+  
+  // Save
+  try { localStorage.setItem('alx_tasbih', JSON.stringify({count:tasbihCount, dhikr:tasbihDhikr, total:tasbihTotal})); } catch(e) {}
+}
+
+function selectDhikr(idx) {
+  tasbihDhikr = idx;
+  tasbihCount = 0;
+  try { localStorage.setItem('alx_tasbih', JSON.stringify({count:0, dhikr:idx, total:tasbihTotal})); } catch(e) {}
+  renderTasbih();
+}
+
+function resetTasbih() {
+  tasbihCount = 0; tasbihTotal = 0;
+  try { localStorage.setItem('alx_tasbih', JSON.stringify({count:0, dhikr:tasbihDhikr, total:0})); } catch(e) {}
+  renderTasbih();
+  showToast('Compteur remis a zero');
 }
 
 // INIT
