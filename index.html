@@ -257,6 +257,48 @@ canvas#tikCanvas{border-radius:12px;max-width:100%;display:block;box-shadow:0 8p
   .tasbih-reset-btn:hover{color:var(--text);border-color:var(--gold-dim)}
   .tasbih-total{font-family:'Space Mono',monospace;font-size:11px;color:var(--text-dim);margin-top:16px}
 
+
+  /* HAMBURGER MENU */
+  .ham-btn{background:none;border:1px solid var(--border);color:var(--text);padding:7px 11px;border-radius:8px;cursor:pointer;font-size:18px;transition:var(--tr)}
+  .ham-btn:hover{border-color:var(--gold-dim);color:var(--gold)}
+
+  .nav-menu{position:fixed;top:60px;right:0;width:260px;background:var(--surface);border-left:1px solid var(--border);border-bottom:1px solid var(--border);z-index:300;transform:translateX(100%);transition:transform .3s ease;border-radius:0 0 0 16px;box-shadow:-4px 4px 20px rgba(0,0,0,.3)}
+  .nav-menu.open{transform:translateX(0)}
+  .nav-menu-inner{padding:16px}
+  .nav-menu-section{font-family:'Space Mono',monospace;font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+  .nav-menu-item{display:flex;align-items:center;width:100%;padding:11px 14px;border:none;border-radius:10px;background:transparent;color:var(--text-muted);cursor:pointer;font-size:14px;font-family:'Lora',serif;text-align:left;transition:var(--tr);margin-bottom:4px}
+  .nav-menu-item:hover{background:var(--surface2);color:var(--text)}
+  .nav-menu-item.active{background:rgba(201,168,76,.1);color:var(--gold);font-weight:600}
+  .nav-menu-select{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:8px;font-size:12px;font-family:'Space Mono',monospace;outline:none;cursor:pointer;margin-top:6px}
+
+  .nav-overlay{position:fixed;inset:0;z-index:299;display:none}
+  .nav-overlay.open{display:block}
+
+  /* CURRENT TAB INDICATOR in header */
+  .current-tab-label{font-family:'Space Mono',monospace;font-size:11px;color:var(--gold);padding:4px 10px;background:rgba(201,168,76,.1);border:1px solid var(--gold-dim);border-radius:20px;display:none}
+  @media(min-width:500px){.current-tab-label{display:block}}
+
+  /* FIX TASBIH MOBILE */
+  .tasbih-wrap{max-width:400px;margin:0 auto;text-align:center;padding:16px 0}
+  .tasbih-counter{font-family:'Space Mono',monospace;font-size:clamp(48px,15vw,80px);font-weight:700;color:var(--gold);line-height:1;margin:16px 0;cursor:pointer;user-select:none;transition:transform .1s}
+  .tasbih-tap-btn{width:clamp(90px,25vw,120px);height:clamp(90px,25vw,120px);border-radius:50%;background:var(--gold);border:none;cursor:pointer;font-size:clamp(24px,8vw,32px);display:flex;align-items:center;justify-content:center;transition:all .1s;box-shadow:0 4px 20px rgba(201,168,76,.3);margin:0 auto}
+  .tasbih-dhikr-btn{padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text);cursor:pointer;font-family:'Lora',serif;font-size:13px;transition:var(--tr);text-align:left;display:flex;justify-content:space-between;align-items:center;width:100%;margin-bottom:8px}
+
+  /* INVOCATIONS */
+  .invoc-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:14px;cursor:pointer;transition:border-color var(--tr)}
+  .invoc-card:hover{border-color:var(--gold-dim)}
+  .invoc-card.open{border-color:var(--gold-dim)}
+  .invoc-ar{font-family:'Amiri',serif;font-size:22px;direction:rtl;text-align:right;color:var(--text);line-height:1.8;margin-bottom:12px;display:none}
+  .invoc-card.open .invoc-ar{display:block}
+  .invoc-fr{font-size:13px;color:var(--blue);line-height:1.6;margin-bottom:8px;display:none;font-style:italic}
+  .invoc-card.open .invoc-fr{display:block}
+  .invoc-wo{font-size:13px;color:var(--amber);line-height:1.6;display:none;font-style:italic}
+  .invoc-card.open .invoc-wo{display:block}
+  .invoc-header{display:flex;justify-content:space-between;align-items:center}
+  .invoc-title{font-size:14px;color:var(--text);font-weight:600}
+  .invoc-chevron{color:var(--text-dim);transition:transform var(--tr);font-size:14px}
+  .invoc-card.open .invoc-chevron{transform:rotate(180deg)}
+
 </style>
 </head>
 <body>
@@ -271,28 +313,36 @@ canvas#tikCanvas{border-radius:12px;max-width:100%;display:block;box-shadow:0 8p
       <button class="lb on-fr" id="btn-fr" onclick="toggleLang('fr')">FR</button>
       <button class="lb on-wo" id="btn-wo" onclick="toggleLang('wo')">WO</button>
     </div>
-    <select class="reciter-sel" id="reciterSel" onchange="changeReciter()">
+    <span class="current-tab-label" id="tabLabel">📖 Coran</span>
+    <button class="ham-btn" onclick="toggleNavMenu()" id="hamBtn">☰</button>
+  </div>
+</header>
+
+<!-- NAV MENU DROPDOWN -->
+<div class="nav-menu" id="navMenu">
+  <div class="nav-menu-inner">
+    <div class="nav-menu-section">Sections</div>
+    <button class="nav-menu-item active" id="nm-quran" onclick="switchTab('quran')">📖 Coran</button>
+    <button class="nav-menu-item" id="nm-faratas" onclick="switchTab('faratas')">🕌 Faratas</button>
+    <button class="nav-menu-item" id="nm-quiz" onclick="switchTab('quiz')">🎯 Quiz</button>
+    <button class="nav-menu-item" id="nm-prayer" onclick="switchTab('prayer')">🕐 Prières & Invocations</button>
+    <button class="nav-menu-item" id="nm-tasbih" onclick="switchTab('tasbih')">📿 Tasbih</button>
+    <div class="nav-menu-section" style="margin-top:12px">Récitateur</div>
+    <select class="nav-menu-select" id="reciterSel" onchange="changeReciter()">
       <option value="ar.alafasy">Mishary Alafasy</option>
       <option value="ar.husary">Mahmoud Khalil Al-Husary</option>
       <option value="ar.minshawi">Mohamed Siddiq Al-Minshawi</option>
       <option value="ar.muhammadayyoub">Muhammad Ayyoub</option>
     </select>
-    <button class="menu-btn" onclick="toggleSidebar()">☰</button>
   </div>
-</header>
+</div>
+<div class="nav-overlay" id="navOverlay" onclick="closeNavMenu()"></div>
 <div class="app-body">
   <aside class="sidebar" id="sidebar">
     <div class="sb-hdr"><input class="search" type="text" placeholder="Chercher une sourate..." oninput="filterSurahs(this.value)"></div>
     <div class="slist" id="surahList"></div>
   </aside>
   <div class="tabs-wrap">
-    <nav class="nav-tabs">
-      <button class="nav-tab active" id="tab-quran" onclick="showTab('quran')">📖 Coran</button>
-      <button class="nav-tab" id="tab-faratas" onclick="showTab('faratas')">🕌 Faratas</button>
-      <button class="nav-tab" id="tab-quiz" onclick="showTab('quiz')">🎯 Quiz</button>
-      <button class="nav-tab" id="tab-prayer" onclick="showTab('prayer')">🕐 Prières</button>
-      <button class="nav-tab" id="tab-tasbih" onclick="showTab('tasbih')">📿 Tasbih</button>
-    </nav>
     <main class="main" id="tabQuran">
       <div class="welcome">
         <span class="wel-icon">﷽</span>
@@ -380,20 +430,44 @@ function filterSurahs(q){
 }
 function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');}
 
-// TABS
+// TABS + HAMBURGER MENU
 let currentTab='quran';
-function showTab(tab){
+
+function toggleNavMenu(){
+  document.getElementById('navMenu').classList.toggle('open');
+  document.getElementById('navOverlay').classList.toggle('open');
+}
+function closeNavMenu(){
+  document.getElementById('navMenu').classList.remove('open');
+  document.getElementById('navOverlay').classList.remove('open');
+}
+
+function switchTab(tab){
+  closeNavMenu();
   currentTab=tab;
-  ['quran','faratas','quiz','prayer','tasbih'].forEach(t=>{
-    document.getElementById('tab-'+t).classList.toggle('active',t===tab);
-    const id={quran:'tabQuran',faratas:'tabFaratas',quiz:'tabQuiz',prayer:'tabPrayer',tasbih:'tabTasbih'}[t];
-    document.getElementById(id).style.display=(t===tab)?'block':'none';
+  // Update tab content visibility
+  const tabMap={quran:'tabQuran',faratas:'tabFaratas',quiz:'tabQuiz',prayer:'tabPrayer',tasbih:'tabTasbih'};
+  Object.entries(tabMap).forEach(([t,id])=>{
+    const el=document.getElementById(id);
+    if(el) el.style.display=(t===tab)?'block':'none';
   });
+  // Update menu active state
+  ['quran','faratas','quiz','prayer','tasbih'].forEach(t=>{
+    const btn=document.getElementById('nm-'+t);
+    if(btn) btn.classList.toggle('active',t===tab);
+  });
+  // Show current tab in header
+  const labels={quran:'📖 Coran',faratas:'🕌 Faratas',quiz:'🎯 Quiz',prayer:'🕐 Prières',tasbih:'📿 Tasbih'};
+  const lbl=document.getElementById('tabLabel');
+  if(lbl) lbl.textContent=labels[tab]||'';
+  // Init tab content
   if(tab==='faratas')renderFaratas();
   if(tab==='quiz')initQuiz();
   if(tab==='prayer')initPrayer();
   if(tab==='tasbih')initTasbih();
 }
+
+function showTab(tab){switchTab(tab);}
 
 // LOAD SURAH
 async function loadSurah(num){
@@ -656,6 +730,77 @@ function shareApp(type){
 }
 
 
+
+// INVOCATIONS DATA
+const INVOCATIONS = [
+  {
+    title: "Ayatul Kursi — Verset du Trone",
+    ar: "اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ ۚ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ ۚ لَهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ ۗ مَنْ ذَا الَّذِي يَشْفَعُ عِنْدَهُ إِلَّا بِإِذْنِهِ ۚ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ ۖ وَلَا يُحِيطُونَ بِشَيْءٍ مِنْ عِلْمِهِ إِلَّا بِمَا شَاءَ ۚ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ ۖ وَلَا يَئُودُهُ حِفْظُهُمَا ۚ وَهُوَ الْعَلِيُّ الْعَظِيمُ",
+    fr: "Allah, il n'y a de dieu que Lui, le Vivant, Celui qui subsiste par lui-meme. Ni somnolence ni sommeil ne Le saisissent. A Lui appartient ce qui est dans les cieux et sur la terre. Qui peut interceder aupres de Lui sans Sa permission ? Il sait ce qui est devant eux et ce qui est derriere eux, alors qu-ils n-embrassent de Sa science que ce qu-Il veut. Son Trone deborde les cieux et la terre et leur preservation ne Lui coute aucune peine. C-est Lui le Tres Haut, le Tres Grand. (Coran 2:255)",
+    wo: "Yàlla, amul yàlla bu bees Moom, Aji-dundu la, Aji-taxawaako la. Soxor ak nelaw du ko am. Mu la am lépp lu nekk ci asamaan yi ak ci suuf si. Ku mën a jot xewel ci Moom, sax bu mu sàkk woon ? Xam naa lu nekk ci kanam-ci ak lu nekk ginnaaw-ci. Ku am xam-xam ci Moom rekk mooy lu mu ko nekk. Kursiy bi séq asamaan yi ak suuf si. Saxoo ko du ko daaldi. Moom la gën a mag, gën a dëkk."
+  },
+  {
+    title: "Du-a apres la priere",
+    ar: "سُبْحَانَ اللَّهِ (33) الْحَمْدُ لِلَّهِ (33) اللَّهُ أَكْبَرُ (34) لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ",
+    fr: "Subhanallah (33 fois) · Alhamdulillah (33 fois) · Allahu Akbar (34 fois) · Puis: Il n-y a de dieu qu-Allah Seul, sans associe. A Lui la royaute, a Lui la louange, et Il est Omnipotent.",
+    wo: "SubhanAllah (33 benn) · Alhamdulillah (33 benn) · Allahu Akbar (34 benn) · Ceebuleen: Amul yàlla bu bees Yàlla, rekk, amul yàkamti. Mu la am gëm-gëm, mu la am xeeti cant. Lépp la mën."
+  },
+  {
+    title: "Du-a pour entrer dans la mosquee",
+    ar: "اللَّهُمَّ افْتَحْ لِي أَبْوَابَ رَحْمَتِكَ",
+    fr: "O Allah, ouvre-moi les portes de Ta misericorde.",
+    wo: "Yàlla, ubb ma bunt yi ci Yërëmandees bi."
+  },
+  {
+    title: "Du-a pour sortir de la mosquee",
+    ar: "اللَّهُمَّ إِنِّي أَسْأَلُكَ مِنْ فَضْلِكَ",
+    fr: "O Allah, je Te demande de Ta grace.",
+    wo: "Yàlla, damaa lay dëmale ci sa mbëggeel."
+  },
+  {
+    title: "Du-a du matin (Sabah)",
+    ar: "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ",
+    fr: "Nous voici au matin, et le royaume appartient a Allah. Louange a Allah. Il n-y a de dieu qu-Allah Seul, sans associe.",
+    wo: "Subaa nanu, génn na subaa ci gëm-gëm bi Yàlla. Xeeti cant ñeel na Yàlla. Amul yàlla bu bees Yàlla, rekk, amul yàkamti."
+  },
+  {
+    title: "Du-a du soir (Masaa)",
+    ar: "أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ",
+    fr: "Nous voici au soir, et le royaume appartient a Allah. Louange a Allah. Il n-y a de dieu qu-Allah Seul, sans associe.",
+    wo: "Ngoon nanu, génn na ngoon ci gëm-gëm bi Yàlla. Xeeti cant ñeel na Yàlla. Amul yàlla bu bees Yàlla, rekk, amul yàkamti."
+  },
+  {
+    title: "Istighfar — Demande de pardon",
+    ar: "أَسْتَغْفِرُ اللَّهَ الْعَظِيمَ الَّذِي لَا إِلَهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ وَأَتُوبُ إِلَيْهِ",
+    fr: "Je demande pardon a Allah le Tres Grand, Il n-y a de dieu que Lui, le Vivant, Celui qui subsiste, et je me repens aupres de Lui.",
+    wo: "Damaa sëkkëlu Yàlla bu mag ba, amul yàlla bu bees Moom, Aji-dundu la, Aji-taxawaako, te damaa tuub fa."
+  },
+  {
+    title: "Du-a pour les parents",
+    ar: "رَبِّ اغْفِرْ لِي وَلِوَالِدَيَّ وَارْحَمْهُمَا كَمَا رَبَّيَانِي صَغِيرًا",
+    fr: "Mon Seigneur ! Pardonne-moi ainsi qu-a mes parents et prends-les en misericorde comme ils m-ont eleve lorsque j-etais petit.",
+    wo: "Yàlla ndox jënd ma ak sama baay ak sama yaay, te yërëm leen ni ñu ma jàngaloon bu ma dëkk ndaw."
+  }
+];
+
+function renderInvocations(){
+  const invList = INVOCATIONS.map((inv,i)=>`
+    <div class="invoc-card" id="inv-${i}" onclick="toggleInvoc(${i})">
+      <div class="invoc-header">
+        <div class="invoc-title">${inv.title}</div>
+        <span class="invoc-chevron">▾</span>
+      </div>
+      <div class="invoc-ar" id="invar-${i}">${inv.ar}</div>
+      <div class="invoc-fr" id="invfr-${i}">${inv.fr}</div>
+      <div class="invoc-wo" id="invwo-${i}">${inv.wo}</div>
+    </div>`).join('');
+  return invList;
+}
+
+function toggleInvoc(i){
+  document.getElementById('inv-'+i).classList.toggle('open');
+}
+
 // ===================== PRAYER TIMES =====================
 const PRAYER_NAMES = {
   Fajr:   {fr:'Aube',       wo:'Fajar',   ar:'الفجر'},
@@ -885,6 +1030,8 @@ initTheme();
 buildQuick();
 renderList(SURAH_LIST);
 if(!restorePos())loadSurah(1);
+// Set initial tab label
+document.getElementById('tabLabel') && (document.getElementById('tabLabel').textContent = '📖 Coran');
 
 </script>
 </body>
