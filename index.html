@@ -2,6 +2,9 @@
 <html lang="fr" data-theme="dark">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src https://api.alquran.cloud https://api.aladhan.com https://cdn.islamic.network https://cdn.jsdelivr.net https://api.quran.com;">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <!-- NOTE SÉCURITÉ : La CSP doit être configurée côté serveur HTTP (header) et non ici,
      car un meta CSP avec connect-src bloque les fetch() en mode file://.
@@ -302,9 +305,48 @@ canvas#tikCanvas{border-radius:12px;max-width:100%;display:block;box-shadow:0 8p
   .invoc-chevron{color:var(--text-dim);transition:transform var(--tr);font-size:14px}
   .invoc-card.open .invoc-chevron{transform:rotate(180deg)}
 
+
+  /* SPLASH SCREEN */
+  .splash{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center;transition:opacity .5s ease}
+  .splash.hidden{opacity:0;pointer-events:none}
+  .splash-inner{text-align:center;padding:40px 30px;max-width:400px}
+  .splash-ar{font-family:'Amiri',serif;font-size:72px;color:var(--gold);line-height:1;margin-bottom:16px;animation:fadeIn .8s ease}
+  .splash-title{font-family:'Space Mono',monospace;font-size:22px;font-weight:700;color:var(--gold);letter-spacing:.15em;text-transform:uppercase;margin-bottom:6px}
+  .splash-sub{font-size:13px;color:var(--text-muted);font-style:italic;margin-bottom:20px}
+  .splash-desc{font-size:14px;color:var(--text);line-height:1.6;margin-bottom:24px;max-width:320px;margin-left:auto;margin-right:auto}
+  .splash-langs{display:flex;justify-content:center;gap:10px;margin-bottom:32px;flex-wrap:wrap}
+  .splash-badge{padding:5px 14px;border-radius:20px;font-size:12px;font-family:'Space Mono',monospace}
+  .splash-badge.b-fr{background:rgba(122,179,232,.1);color:var(--blue);border:1px solid rgba(122,179,232,.2)}
+  .splash-badge.b-wo{background:rgba(201,168,76,.1);color:var(--amber);border:1px solid rgba(201,168,76,.2)}
+  .splash-badge.b-ar{background:rgba(76,175,138,.1);color:var(--green);border:1px solid rgba(76,175,138,.2)}
+  .splash-loader{width:200px;margin:0 auto}
+  .splash-bar{height:3px;background:var(--border);border-radius:2px;overflow:hidden}
+  .splash-fill{height:100%;background:linear-gradient(90deg,var(--gold-dim),var(--gold));border-radius:2px;width:0%;transition:width .1s linear}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+
 </style>
 </head>
 <body>
+<!-- SPLASH SCREEN -->
+<div class="splash" id="splash">
+  <div class="splash-inner">
+    <div class="splash-ar">القرآن</div>
+    <div class="splash-title">Alxuraan</div>
+    <div class="splash-sub">Wolof · Français · Arabe</div>
+    <div class="splash-desc">Le Saint Coran en trois langues — arabe, français et wolof — avec audio de récitation.</div>
+    <div class="splash-langs">
+      <span class="splash-badge b-fr">Français</span>
+      <span class="splash-badge b-wo">Wolof</span>
+      <span class="splash-badge b-ar">عربي</span>
+    </div>
+    <div class="splash-loader">
+      <div class="splash-bar">
+        <div class="splash-fill" id="splashFill"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <header>
   <div class="logo">
     <span class="logo-ar">القرآن</span>
@@ -387,7 +429,7 @@ canvas#tikCanvas{border-radius:12px;max-width:100%;display:block;box-shadow:0 8p
 <div class="search-panel" id="searchPanel" onclick="if(event.target===this)closeSearch()">
   <div class="sp-inner">
     <div class="sp-hdr">
-      <input class="sp-input" id="spInput" type="text" placeholder="Rechercher dans le Coran (wolof, français)..." oninput="doSearch(this.value)">
+      <input class="sp-input" id="spInput" type="text" placeholder="Rechercher dans le Coran (wolof, français)..." oninput="debouncedSearch(this.value)">
       <button class="sp-close" onclick="closeSearch()">✕</button>
     </div>
     <div class="sp-count" id="spCount"></div>
@@ -916,48 +958,6 @@ const INVOCATIONS = [
     source: "Coran 114:1–6"
   },
   {
-    title: "Du'a après la prière",
-    ar: "سُبْحَانَ اللَّهِ ۝ الْحَمْدُ لِلَّهِ ۝ اللَّهُ أَكْبَرُ ۝ لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ",
-    fr: "Subhanallah (33 fois) · Alhamdulillah (33 fois) · Allahu Akbar (34 fois) · Puis : Il n'y a de dieu qu'Allah Seul, sans associé. À Lui la royauté, à Lui la louange, et Il est Omnipotent.",
-    wo: "SubhanAllah (33 benn) · Alhamdulillah (33 benn) · Allahu Akbar (34 benn) · Ceebuleen: Amul yàlla bu bees Yàlla, rekk, amul yàkamti. Mu la am gëm-gëm, mu la am xeeti cant. Lépp la mën.",
-    source: "Hadith"
-  },
-  {
-    title: "Du'a pour entrer dans la mosquée",
-    ar: "اللَّهُمَّ افْتَحْ لِي أَبْوَابَ رَحْمَتِكَ",
-    fr: "Ô Allah, ouvre-moi les portes de Ta miséricorde.",
-    wo: "Yàlla, ubb ma bunt yi ci Yërëmandees bi.",
-    source: "Hadith — Muslim"
-  },
-  {
-    title: "Du'a pour sortir de la mosquée",
-    ar: "اللَّهُمَّ إِنِّي أَسْأَلُكَ مِنْ فَضْلِكَ",
-    fr: "Ô Allah, je Te demande de Ta grâce.",
-    wo: "Yàlla, damaa lay dëmale ci sa mbëggeel.",
-    source: "Hadith — Muslim"
-  },
-  {
-    title: "Du'a du matin (Sabah)",
-    ar: "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ",
-    fr: "Nous voici au matin, et le royaume appartient à Allah. Louange à Allah. Il n'y a de dieu qu'Allah Seul, sans associé. À Lui la royauté, à Lui la louange, et Il est Omnipotent.",
-    wo: "Subaa nanu, génn na subaa ci gëm-gëm bi Yàlla. Xeeti cant ñeel na Yàlla. Amul yàlla bu bees Yàlla, rekk, amul yàkamti.",
-    source: "Hadith — Abu Dawud"
-  },
-  {
-    title: "Du'a du soir (Masaa)",
-    ar: "أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ",
-    fr: "Nous voici au soir, et le royaume appartient à Allah. Louange à Allah. Il n'y a de dieu qu'Allah Seul, sans associé. À Lui la royauté, à Lui la louange, et Il est Omnipotent.",
-    wo: "Ngoon nanu, génn na ngoon ci gëm-gëm bi Yàlla. Xeeti cant ñeel na Yàlla. Amul yàlla bu bees Yàlla, rekk, amul yàkamti.",
-    source: "Hadith — Abu Dawud"
-  },
-  {
-    title: "Istighfar — Demande de pardon",
-    ar: "أَسْتَغْفِرُ اللَّهَ الْعَظِيمَ الَّذِي لَا إِلَهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ وَأَتُوبُ إِلَيْهِ",
-    fr: "Je demande pardon à Allah le Très Grand, Il n'y a de dieu que Lui, le Vivant, Celui qui subsiste, et je me repens auprès de Lui.",
-    wo: "Damaa sëkkëlu Yàlla bu mag ba, amul yàlla bu bees Moom, Aji-dundu la, Aji-taxawaako, te damaa tuub fa.",
-    source: "Hadith — Tirmidhi"
-  },
-  {
     title: "Du'a pour les parents",
     ar: "رَّبِّ اغْفِرْ لِي وَلِوَالِدَيَّ وَارْحَمْهُمَا كَمَا رَبَّيَانِي صَغِيرًا",
     fr: "Mon Seigneur ! Pardonne-moi ainsi qu'à mes parents et prends-les en miséricorde comme ils m'ont élevé lorsque j'étais petit.",
@@ -1118,11 +1118,11 @@ function renderPrayers(data) {
 
 // ===================== TASBIH =====================
 const DHIKR_LIST = [
-  {ar:'سُبْحَانَ اللَّهِ',       fr:'Subhanallah',    wo:'Yàlla sell na',          target:33},
-  {ar:'الْحَمْدُ لِلَّهِ',      fr:'Alhamdulillah',  wo:'Xeeti cant yëp ñeel na Yàlla', target:33},
-  {ar:'اللَّهُ أَكْبَرُ',       fr:'Allahu Akbar',   wo:'Yàlla moo gën a mag',     target:34},
-  {ar:'لَا إِلَهَ إِلَّا اللَّهُ', fr:'La ilaha illallah', wo:'Amul bèn buur bu dul Yàlla', target:100},
-  {ar:'أَسْتَغْفِرُ اللَّهَ',    fr:'Astaghfirullah', wo:'Yàlla djègël nu',  target:100},
+  {ar:'سُبْحَانَ اللَّهِ',       fr:'Subhanallah',    wo:'Yàlla sell na',          ref:'33x'},
+  {ar:'الْحَمْدُ لِلَّهِ',      fr:'Alhamdulillah',  wo:'Xeeti cant yëp ñeel na Yàlla', ref:'33x'},
+  {ar:'اللَّهُ أَكْبَرُ',       fr:'Allahu Akbar',   wo:'Yàlla moo gën a mag',     ref:'34x'},
+  {ar:'لَا إِلَهَ إِلَّا اللَّهُ', fr:'La ilaha illallah', wo:'Amul bèn buur bu dul Yàlla', ref:'100x'},
+  {ar:'أَسْتَغْفِرُ اللَّهَ',    fr:'Astaghfirullah', wo:'Yàlla djègël nu',  ref:'100x'},
 ];
 
 let tasbihCount = 0;
@@ -1164,7 +1164,7 @@ function renderTasbih() {
       <div style="font-size:13px;color:var(--amber);font-style:italic;margin-bottom:24px">${d.wo}</div>
       
       <div class="tasbih-counter" id="tasbihCount" onclick="tapTasbih()">${tasbihCount}</div>
-      <div class="tasbih-target">/ ${d.target}</div>
+      <div class="tasbih-target">${d.ref} recommandé</div>
       <div class="tasbih-progress-bar">
         <div class="tasbih-progress-fill" style="width:${pct}%"></div>
       </div>
@@ -1233,8 +1233,66 @@ function resetTasbih() {
   showToast('Compteur remis a zero');
 }
 
+
+// ===================== SECURITY =====================
+function sanitize(str){
+  if(!str) return '';
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#x27;')
+    .replace(/\//g,'&#x2F;');
+}
+
+function safeSave(key, data){
+  try{
+    const str = JSON.stringify(data);
+    if(str.length > 50000){ console.warn('Storage limit exceeded for', key); return; }
+    localStorage.setItem(key, str);
+  }catch(e){ console.warn('Storage error:', e); }
+}
+
+function safeLoad(key, fallback=null){
+  try{
+    const item = localStorage.getItem(key);
+    return item ? JSON.parse(item) : fallback;
+  }catch(e){ return fallback; }
+}
+
+let searchTimer = null;
+function debouncedSearch(q){
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(()=>doSearch(q), 300);
+}
+
+function validSurah(n){ return Number.isInteger(n) && n >= 1 && n <= 114; }
+function validVerse(surahNum, v){
+  const s = SURAH_LIST.find(x=>x.num===surahNum);
+  return s && Number.isInteger(v) && v >= 1 && v <= s.verses;
+}
+
+// ===================== SPLASH SCREEN =====================
+function initSplash(){
+  const fill = document.getElementById('splashFill');
+  const splash = document.getElementById('splash');
+  let progress = 0;
+  const interval = setInterval(()=>{
+    progress += 4;
+    if(fill) fill.style.width = progress + '%';
+    if(progress >= 100){
+      clearInterval(interval);
+      setTimeout(()=>{
+        if(splash){ splash.classList.add('hidden'); setTimeout(()=>splash.remove(), 500); }
+      }, 200);
+    }
+  }, 40);
+}
+
 // INIT
 initTheme();
+initSplash();
 buildQuick();
 renderList(SURAH_LIST);
 // Toujours afficher l'écran de bienvenue au démarrage
