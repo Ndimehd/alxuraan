@@ -30,7 +30,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:0
 .lb.on-wo{background:rgba(201,168,76,.2);color:var(--amber)}
 .reciter-sel{background:var(--bg);border:1px solid var(--border);color:var(--text);padding:5px 9px;border-radius:8px;font-size:12px;font-family:'Space Mono',monospace;cursor:pointer;outline:none}
 .menu-btn{display:none;background:none;border:1px solid var(--border);color:var(--text);padding:5px 9px;border-radius:8px;cursor:pointer;font-size:16px}
-.app-body{display:flex;flex:1;overflow:hidden;height:calc(100vh - 60px - 56px)}
+.app-body{display:flex;flex:1;overflow:hidden;height:calc(100vh - 60px)}
 .sidebar{width:280px;min-width:280px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
 .sb-hdr{padding:12px;border-bottom:1px solid var(--border)}
 .search{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:7px 11px;border-radius:8px;font-size:13px;font-family:'Lora',serif;outline:none}
@@ -228,7 +228,26 @@ canvas#tikCanvas{border-radius:12px;max-width:100%;display:block;box-shadow:0 8p
 .mbtn.cl{background:transparent;border:1px solid var(--border);color:var(--text-muted)}
 .toast{position:fixed;bottom:64px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:9px 18px;border-radius:24px;font-size:12px;font-family:'Space Mono',monospace;opacity:0;transition:all .3s ease;pointer-events:none;white-space:nowrap;z-index:500}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-@media(max-width:768px){.menu-btn{display:flex;align-items:center}.sidebar{position:fixed;left:-280px;top:60px;height:calc(100vh - 60px - 56px);z-index:90;transition:left .3s ease}.sidebar.open{left:0}.main{padding:16px 14px 80px}.reciter-sel{display:none}.sh{padding:18px}.sh-ar{font-size:30px}.v-ar{font-size:20px}.bot-info,.bot-sep{display:none}}
+@media(max-width:700px){
+  .sidebar{position:fixed;left:-100%;top:60px;height:calc(100vh - 60px);width:100%;max-width:100%;z-index:350;transition:left .3s ease;border-right:none}
+  .sidebar.open{left:0}
+  .sb-overlay{position:fixed;inset:0;top:60px;z-index:349;background:rgba(0,0,0,.5);display:none}
+  .sb-overlay.open{display:block}
+  .main{padding:14px 12px 24px}
+  .app-body{height:calc(100vh - 60px)}
+  .sh{padding:16px}
+  .sh-ar{font-size:clamp(24px,7vw,32px)}
+  .v-ar{font-size:clamp(18px,5vw,22px)}
+  .logo-sub{display:none}
+  .reciter-sel{display:none}
+  .bot{display:none}
+  .hdr-player-mobile{display:flex}
+}
+@media(min-width:701px){
+  .sb-overlay{display:none!important}
+  .bot{display:flex}
+  .hdr-player-mobile{display:none}
+}
 
   /* PRAYER TIMES */
   .prayer-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:16px}
@@ -359,7 +378,8 @@ canvas#tikCanvas{border-radius:12px;max-width:100%;display:block;box-shadow:0 8p
       <button class="lb on-wo" id="btn-wo" onclick="toggleLang('wo')">WO</button>
     </div>
     <span class="current-tab-label" id="tabLabel">📖 Coran</span>
-    <button class="ham-btn" onclick="toggleNavMenu()" id="hamBtn">☰</button>
+    <button class="ham-btn" id="sidebarBtn" onclick="toggleSidebarMobile()" style="margin-right:4px" title="Sourates">☰</button>
+    <button class="ham-btn" onclick="toggleNavMenu()" id="hamBtn" title="Menu">⋮</button>
   </div>
 </header>
 
@@ -383,6 +403,7 @@ canvas#tikCanvas{border-radius:12px;max-width:100%;display:block;box-shadow:0 8p
   </div>
 </div>
 <div class="nav-overlay" id="navOverlay" onclick="closeNavMenu()"></div>
+<div class="sb-overlay" id="sbOverlay" onclick="closeSidebar()"></div>
 <div class="app-body">
   <aside class="sidebar" id="sidebar">
     <div class="sb-hdr"><input class="search" type="text" placeholder="Chercher une sourate..." oninput="filterSurahs(this.value)"></div>
@@ -489,6 +510,15 @@ function filterSurahs(q){
   renderList(SURAH_LIST.filter(s=>s.arabic.toLowerCase().includes(q)||s.french.toLowerCase().includes(q)||s.wolof.toLowerCase().includes(q)||String(s.num).includes(q)));
 }
 function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');}
+function toggleSidebarMobile(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sbOverlay').classList.toggle('open');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  const ov=document.getElementById('sbOverlay');
+  if(ov) ov.classList.remove('open');
+}
 
 // TABS + HAMBURGER MENU
 let currentTab='quran';
@@ -536,7 +566,7 @@ async function loadSurah(num){
   document.querySelectorAll('.si').forEach(e=>e.classList.remove('active'));
   const si=document.getElementById('si-'+num);
   if(si){si.classList.add('active');si.scrollIntoView({block:'nearest'});}
-  document.getElementById('sidebar').classList.remove('open');
+  closeSidebar();
   showTab('quran');
   document.getElementById('tabQuran').innerHTML='<div class="loading"><div class="spinner"></div>Chargement...</div>';
   updateBot();
